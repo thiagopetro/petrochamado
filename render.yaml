@@ -10,7 +10,7 @@ services:
   # Backend Spring Boot API
   - type: web
     name: chamadopetro-backend
-    env: java
+    runtime: docker
     region: oregon
     plan: free
     buildCommand: cd backend && mvn clean package -DskipTests
@@ -41,7 +41,7 @@ services:
   # Frontend Next.js
   - type: web
     name: chamadopetro-frontend
-    env: node
+    runtime: node
     region: oregon
     plan: free
     buildCommand: cd frontend && npm ci && npm run build

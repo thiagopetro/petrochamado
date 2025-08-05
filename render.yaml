@@ -34,10 +34,7 @@ services:
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: chamadopetro-frontend
-          property: host
+        value: https://chamadopetro-frontend.onrender.com
 
   # Frontend Next.js
   - type: web
@@ -49,7 +46,4 @@ services:
     startCommand: cd frontend && npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: chamadopetro-backend
-          property: host
+        value: https://chamadopetro-backend.onrender.com

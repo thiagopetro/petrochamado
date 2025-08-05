@@ -442,7 +442,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 **Thiago de Amorim Moraes**
 - GitHub: [@thiagoamorim](https://github.com/thiagoamorim)
-- Email: thiago@lovablepetro.com
 
 ## 🙏 Agradecimentos
 

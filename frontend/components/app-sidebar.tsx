@@ -1,8 +1,9 @@
 "use client"
 
-import { Home, Plus, Ticket, Users } from "lucide-react"
+import { Home, Plus, Ticket, Users, LogOut, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 
 import {
   Sidebar,
@@ -38,6 +39,7 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user, logout } = useAuth()
 
   return (
     <Sidebar>
@@ -84,6 +86,29 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        
+        {/* Informações do usuário */}
+        <div className="border-t border-sidebar-border pt-2">
+          <div className="px-2 py-2">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <User className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-medium truncate">{user?.fullName}</span>
+                <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+              </div>
+            </div>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={logout} className="w-full text-red-600 hover:text-red-700 hover:bg-red-50">
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </div>
+        </div>
       </SidebarFooter>
 
       <SidebarRail />

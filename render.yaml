@@ -1,0 +1,56 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: chamadopetro-db
+    env: docker
+    region: oregon
+    plan: free
+    databases:
+      - name: petrochamado
+        user: chamadopetro_user
+
+  # Backend Spring Boot API
+  - type: web
+    name: chamadopetro-backend
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: cd backend && java -Dspring.profiles.active=prod -jar target/chamadopetro-backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chamadopetro-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: chamadopetro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: chamadopetro-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: chamadopetro-frontend
+          property: host
+
+  # Frontend Next.js
+  - type: web
+    name: chamadopetro-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: chamadopetro-backend
+          property: host

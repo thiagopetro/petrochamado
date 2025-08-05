@@ -15,18 +15,33 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
     
     @Autowired
     private AuthService authService;
     
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    public ResponseEntity<?> login(@RequestBody(required = false) LoginRequestDTO request) {
+        System.err.println("=== LOGIN ENDPOINT REACHED ===");
+        System.err.println("=== LOGIN ATTEMPT START ===");
+        System.err.println("Request object: " + request);
+        System.err.println("User: " + (request != null ? request.getUsername() : "null request"));
+        System.err.println("Password length: " + (request != null && request.getPassword() != null ? request.getPassword().length() : "null password"));
+        
+        if (request == null) {
+            System.err.println("=== REQUEST IS NULL ===");
+            return ResponseEntity.badRequest().body("Request body is null");
+        }
+        
         try {
             AuthResponseDTO response = authService.login(request);
+            System.err.println("=== LOGIN SUCCESS ===");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.err.println("=== LOGIN ERROR ===");
+            System.err.println("Exception: " + e.getClass().getName());
+            System.err.println("Message: " + e.getMessage());
+            e.printStackTrace(System.err);
             return ResponseEntity.badRequest().build();
         }
     }
@@ -52,11 +67,43 @@ public class AuthController {
         List<String> technicians = authService.getTechnicianNames();
         return ResponseEntity.ok(technicians);
     }
+    
+    @PostMapping("/test-login")
+    public ResponseEntity<?> testLogin(@RequestBody LoginRequestDTO request) {
+        try {
+            System.err.println("=== TEST LOGIN ===");
+            System.err.println("Username: " + request.getUsername());
+            System.err.println("Password: " + request.getPassword());
+            
+            // Verificar se usuário existe
+            var user = authService.getUserByUsername(request.getUsername());
+            if (user.isEmpty()) {
+                return ResponseEntity.ok(Map.of("error", "Usuário não encontrado"));
+            }
+            
+            System.err.println("User found: " + user.get().getUsername());
+            System.err.println("Stored password: " + user.get().getPassword());
+            
+            // Testar verificação de senha
+            boolean passwordMatch = authService.checkPassword(request.getPassword(), user.get().getPassword());
+            System.err.println("Password match: " + passwordMatch);
+            
+            if (!passwordMatch) {
+                return ResponseEntity.ok(Map.of("error", "Senha incorreta"));
+            }
+            
+            return ResponseEntity.ok(Map.of("success", "Credenciais válidas"));
+            
+        } catch (Exception e) {
+            System.err.println("Test login error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.ok(Map.of("error", e.getMessage()));
+        }
+    }
 }
 
 @RestController
 @RequestMapping("/api/setup")
-@CrossOrigin(origins = "*")
 class SetupController {
     
     @Autowired

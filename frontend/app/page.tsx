@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PageHeader } from "@/components/page-header"
 import { priorityColors, statusColors, type Ticket } from "@/lib/mock-data"
+import { useApi } from "@/hooks/useApi"
 
 import { AlertCircle, CheckCircle, Clock, Ticket as TicketIcon, TrendingUp } from "lucide-react"
 import Link from "next/link"
@@ -15,13 +16,13 @@ export default function Dashboard() {
   const [period, setPeriod] = useState("month")
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
+  const { apiCall } = useApi()
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await fetch('http://localhost:8081/api/tickets')
-        if (response.ok) {
-          const data = await response.json()
+        const data = await apiCall('/api/tickets')
+        if (data) {
           setTickets(data)
         }
       } catch (error) {
@@ -32,7 +33,7 @@ export default function Dashboard() {
     }
 
     fetchTickets()
-  }, [])
+  }, [apiCall])
 
   // Calcular métricas
   const totalTickets = tickets.length

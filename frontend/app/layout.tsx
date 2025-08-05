@@ -2,9 +2,9 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AuthProvider } from "@/contexts/AuthContext"
 import { Toaster } from "@/components/ui/toaster"
+import ClientLayout from "@/components/ClientLayout"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,11 +22,12 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <SidebarProvider>
-          <AppSidebar />
-          <main className="flex-1 overflow-hidden">{children}</main>
+        <AuthProvider>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
           <Toaster />
-        </SidebarProvider>
+        </AuthProvider>
       </body>
     </html>
   )

@@ -13,7 +13,7 @@ services:
     runtime: docker
     region: oregon
     plan: free
-    buildCommand: cd backend && mvn clean package -DskipTests
+    dockerfilePath: ./Dockerfile.backend
     envVars:
       - key: DATABASE_URL
         fromDatabase:

@@ -16,8 +16,15 @@ public class DatabaseConfig {
     @Primary
     public DataSource dataSource() {
         String databaseUrl = System.getenv("DATABASE_URL");
+        String dbUsername = System.getenv("DB_USERNAME");
+        String dbPassword = System.getenv("DB_PASSWORD");
         
-        if (databaseUrl != null && databaseUrl.startsWith("postgresql://")) {
+        // Validar se as variáveis de ambiente estão definidas
+        if (databaseUrl == null || dbUsername == null || dbPassword == null) {
+            throw new IllegalStateException("Variáveis de ambiente do banco de dados não configuradas: DATABASE_URL, DB_USERNAME, DB_PASSWORD");
+        }
+        
+        if (databaseUrl.startsWith("postgresql://")) {
             // Converter URL do Render para formato JDBC
             databaseUrl = databaseUrl.replace("postgresql://", "jdbc:postgresql://");
         }
@@ -26,8 +33,8 @@ public class DatabaseConfig {
                 .create()
                 .url(databaseUrl)
                 .driverClassName("org.postgresql.Driver")
-                .username(System.getenv("DB_USERNAME"))
-                .password(System.getenv("DB_PASSWORD"))
+                .username(dbUsername)
+                .password(dbPassword)
                 .build();
     }
 }

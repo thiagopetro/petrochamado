@@ -1,12 +1,11 @@
-services:
-  # PostgreSQL Database
-  - type: pserv
-    name: chamadopetro-db
-    env: docker
+databases:
+  - name: chamadopetro-db
+    databaseName: petrochamado
+    user: chamadopetro_user
     region: oregon
     plan: free
-    databaseName: petrochamado
-    databaseUser: chamadopetro_user
+
+services:
 
   # Backend Spring Boot API
   - type: web

@@ -38,7 +38,8 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:8081/api/users')
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+      const response = await fetch(`${baseUrl}/api/users`)
       if (response.ok) {
         const data = await response.json()
         setUsers(data.content || data)
@@ -64,7 +65,8 @@ export default function UsersPage() {
   const handleDeleteUser = async (userId: number) => {
     if (confirm('Tem certeza que deseja excluir este usuário?')) {
       try {
-        const response = await fetch(`http://localhost:8081/api/users/${userId}`, {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+        const response = await fetch(`${baseUrl}/api/users/${userId}`, {
           method: 'DELETE',
         })
         

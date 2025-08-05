@@ -27,7 +27,8 @@ export default function TicketsPage() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await fetch('http://localhost:8081/api/tickets')
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+        const response = await fetch(`${baseUrl}/api/tickets`)
         if (response.ok) {
           const data = await response.json()
           setTickets(data)
@@ -46,7 +47,8 @@ export default function TicketsPage() {
   const handleDeleteTicket = async (ticketId: string) => {
     if (window.confirm('Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita.')) {
       try {
-        const response = await fetch(`http://localhost:8081/api/tickets/${ticketId}`, {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+        const response = await fetch(`${baseUrl}/api/tickets/${ticketId}`, {
           method: 'DELETE'
         })
         

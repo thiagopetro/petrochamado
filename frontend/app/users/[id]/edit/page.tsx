@@ -48,7 +48,8 @@ export default function EditUserPage() {
   const fetchUser = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:8081/api/users/${userId}`)
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+      const response = await fetch(`${baseUrl}/api/users/${userId}`)
       if (response.ok) {
         const userData = await response.json()
         setUser(userData)
@@ -143,7 +144,8 @@ export default function EditUserPage() {
         userData.senha = formData.senha
       }
 
-      const response = await fetch(`http://localhost:8081/api/users/${userId}`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+      const response = await fetch(`${baseUrl}/api/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

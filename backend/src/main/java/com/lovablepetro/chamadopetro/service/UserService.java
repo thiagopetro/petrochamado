@@ -2,6 +2,7 @@ package com.lovablepetro.chamadopetro.service;
 
 import com.lovablepetro.chamadopetro.controller.UserController.UserStatsDTO;
 import com.lovablepetro.chamadopetro.dto.UserDTO;
+import com.lovablepetro.chamadopetro.dto.UserSafeDTO;
 import com.lovablepetro.chamadopetro.entity.Role;
 import com.lovablepetro.chamadopetro.entity.User;
 import com.lovablepetro.chamadopetro.repository.UserRepository;
@@ -34,6 +35,14 @@ public class UserService {
         Page<User> users = userRepository.findAll(pageable);
         return users.map(this::convertToDTO);
     }
+    
+    /**
+     * Obter todos os usuários com paginação (versão segura sem senha)
+     */
+    public Page<UserSafeDTO> getAllUsersSafe(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(UserSafeDTO::new);
+    }
 
     /**
      * Buscar usuários por nome ou login
@@ -44,6 +53,16 @@ public class UserService {
                    .map(this::convertToDTO)
                    .collect(Collectors.toList());
     }
+    
+    /**
+     * Buscar usuários por nome ou login (versão segura sem senha)
+     */
+    public List<UserSafeDTO> searchUsersSafe(String query) {
+        List<User> users = userRepository.findByFullNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(query, query);
+        return users.stream()
+                   .map(UserSafeDTO::new)
+                   .collect(Collectors.toList());
+    }
 
     /**
      * Obter usuário por ID
@@ -51,6 +70,14 @@ public class UserService {
     public Optional<UserDTO> getUserById(Long id) {
         return userRepository.findById(id)
                            .map(this::convertToDTO);
+    }
+    
+    /**
+     * Obter usuário por ID (versão segura sem senha)
+     */
+    public Optional<UserSafeDTO> getUserByIdSafe(Long id) {
+        return userRepository.findById(id)
+                           .map(UserSafeDTO::new);
     }
 
     /**

@@ -3,9 +3,7 @@ const nextConfig = {
   output: 'standalone',
   
   // Configurações para produção
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
+  serverExternalPackages: [],
   
   eslint: {
     ignoreDuringBuilds: true,

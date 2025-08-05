@@ -1,6 +1,7 @@
 package com.lovablepetro.chamadopetro.controller;
 
 import com.lovablepetro.chamadopetro.dto.UserDTO;
+import com.lovablepetro.chamadopetro.dto.UserSafeDTO;
 import com.lovablepetro.chamadopetro.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,8 @@ public class UserController {
      * Listar todos os usuários com paginação
      */
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
-        Page<UserDTO> users = userService.getAllUsers(pageable);
+    public ResponseEntity<Page<UserSafeDTO>> getAllUsers(Pageable pageable) {
+        Page<UserSafeDTO> users = userService.getAllUsersSafe(pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -33,8 +34,8 @@ public class UserController {
      * Buscar usuários por nome ou login
      */
     @GetMapping("/search")
-    public ResponseEntity<List<UserDTO>> searchUsers(@RequestParam String query) {
-        List<UserDTO> users = userService.searchUsers(query);
+    public ResponseEntity<List<UserSafeDTO>> searchUsers(@RequestParam String query) {
+        List<UserSafeDTO> users = userService.searchUsersSafe(query);
         return ResponseEntity.ok(users);
     }
 
@@ -42,8 +43,8 @@ public class UserController {
      * Obter usuário por ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        Optional<UserDTO> user = userService.getUserById(id);
+    public ResponseEntity<UserSafeDTO> getUserById(@PathVariable Long id) {
+        Optional<UserSafeDTO> user = userService.getUserByIdSafe(id);
         return user.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
     }

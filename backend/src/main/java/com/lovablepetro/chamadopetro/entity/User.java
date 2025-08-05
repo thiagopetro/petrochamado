@@ -1,5 +1,6 @@
 package com.lovablepetro.chamadopetro.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,7 @@ public class User implements UserDetails {
     @NotBlank(message = "Password é obrigatório")
     @Size(min = 6, message = "Password deve ter pelo menos 6 caracteres")
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     
     @NotBlank(message = "Nome completo é obrigatório")

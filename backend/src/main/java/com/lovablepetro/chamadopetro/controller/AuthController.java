@@ -3,6 +3,7 @@ package com.lovablepetro.chamadopetro.controller;
 import com.lovablepetro.chamadopetro.dto.AuthResponseDTO;
 import com.lovablepetro.chamadopetro.dto.LoginRequestDTO;
 import com.lovablepetro.chamadopetro.dto.RegisterRequestDTO;
+import com.lovablepetro.chamadopetro.dto.UserResponseDTO;
 import com.lovablepetro.chamadopetro.entity.User;
 import com.lovablepetro.chamadopetro.service.AuthService;
 import jakarta.validation.Valid;
@@ -57,9 +58,12 @@ public class AuthController {
     }
     
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<User> users = authService.getAllUsers();
-        return ResponseEntity.ok(users);
+        List<UserResponseDTO> userDTOs = users.stream()
+                .map(UserResponseDTO::new)
+                .toList();
+        return ResponseEntity.ok(userDTOs);
     }
     
     @GetMapping("/technicians")

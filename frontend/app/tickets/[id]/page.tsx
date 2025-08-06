@@ -100,7 +100,7 @@ export default function TicketDetailsPage() {
     <div className="flex flex-col h-screen">
       <PageHeader
         title={`Chamado ${ticket.id}`}
-        breadcrumbs={[{ label: "Dashboard", href: "/" }, { label: "Chamados", href: "/tickets" }, { label: ticket.id }]}
+        breadcrumbs={[{ label: "Dashboard", href: "/" }, { label: "Chamados", href: "/tickets" }, { label: ticket.id.toString() }]}
       >
         <div className="flex gap-2">
           <Button variant="outline" asChild>

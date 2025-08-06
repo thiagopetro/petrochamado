@@ -136,7 +136,7 @@ export default function EditTicketPage() {
         breadcrumbs={[
           { label: "Dashboard", href: "/" },
           { label: "Chamados", href: "/tickets" },
-          { label: ticket.id, href: `/tickets/${ticket.id}` },
+          { label: ticket.id.toString(), href: `/tickets/${ticket.id}` },
           { label: "Editar" },
         ]}
       >

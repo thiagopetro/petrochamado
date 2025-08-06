@@ -6,7 +6,21 @@
       "Bash(curl:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(find:*)",
+      "Bash(winget search:*)",
+      "Bash(winget install:*)",
+      "Bash(refreshenv)",
+      "Bash(ngrok version)",
+      "Bash(npm:*)",
+      "Bash(start-ngrok.bat)",
+      "Bash(./start-ngrok.bat)",
+      "Bash(ngrok config:*)",
+      "Bash(cat:*)",
+      "Bash(set FRONTEND_URL=https://petrochamado.ngrok-free.app)",
+      "Bash(ngrok:*)",
+      "Bash(./start-localtunnel.bat)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   }

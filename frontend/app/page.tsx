@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PageHeader } from "@/components/page-header"
 import { priorityColors, statusColors, type Ticket } from "@/lib/mock-data"
-import { useApi } from "@/hooks/useApi"
+
 
 import { AlertCircle, CheckCircle, Clock, Ticket as TicketIcon, TrendingUp } from "lucide-react"
 import Link from "next/link"
@@ -16,14 +16,24 @@ export default function Dashboard() {
   const [period, setPeriod] = useState("month")
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
-  const { apiCall } = useApi()
+
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const data = await apiCall('/api/tickets')
-        if (data) {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+        const response = await fetch(`${baseUrl}/api/tickets`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
           setTickets(data)
+        } else {
+          console.error('Erro na resposta:', response.status, response.statusText)
         }
       } catch (error) {
         console.error('Erro ao buscar tickets:', error)
@@ -33,7 +43,7 @@ export default function Dashboard() {
     }
 
     fetchTickets()
-  }, [apiCall])
+  }, [])
 
   // Calcular métricas
   const totalTickets = tickets.length
@@ -43,7 +53,7 @@ export default function Dashboard() {
 
   // 5 chamados mais recentes
   const recentTickets = tickets
-    .sort((a, b) => new Date(b.abertoem).getTime() - new Date(a.abertoem).getTime())
+    .sort((a, b) => new Date(b.abertoEm).getTime() - new Date(a.abertoEm).getTime())
     .slice(0, 5)
 
   if (loading) {
@@ -144,7 +154,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">{ticket.id}</span>
+                        <span className="font-medium text-sm">{ticket.ticketId}</span>
                         <Badge variant="outline" className={priorityColors[ticket.prioridade]}>
                           {ticket.prioridade}
                         </Badge>
@@ -154,7 +164,7 @@ export default function Dashboard() {
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{ticket.titulo}</p>
                       <p className="text-xs text-muted-foreground">
-                        Aberto por {ticket.abertopor} • {new Date(ticket.abertoem).toLocaleDateString("pt-BR")}
+                        Aberto por {ticket.abertoPor} • {new Date(ticket.abertoEm).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>

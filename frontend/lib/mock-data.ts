@@ -1,12 +1,13 @@
 export interface Ticket {
-  id: string
+  id: number
+  ticketId: string
   titulo: string
   descricao: string
   prioridade: "1 - Crítica" | "2 - Alta" | "3 - Moderada" | "4 - Baixa"
-  abertoem: string
-  abertopor: string
+  abertoEm: string
+  abertoPor: string
   emailAbertoPor: string
-  atribuidoa: string
+  atribuidoA: string
   atualizado: string
   status: "Aguardando usuário" | "Em atendimento" | "Problema confirmado" | "Resolvido"
 }

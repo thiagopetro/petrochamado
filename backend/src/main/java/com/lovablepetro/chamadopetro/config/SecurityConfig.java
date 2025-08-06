@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -57,8 +56,15 @@ public class SecurityConfig {
             // Produção: usar URL do frontend do Render
             configuration.setAllowedOriginPatterns(java.util.Arrays.asList(allowedOrigins, "https://*.onrender.com"));
         } else {
-            // Desenvolvimento: usar localhost
-            configuration.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:3000", "http://localhost:3001"));
+            // Desenvolvimento: usar localhost, ngrok e localtunnel
+            configuration.setAllowedOriginPatterns(java.util.Arrays.asList(
+                "http://localhost:3000", 
+                "http://localhost:3001",
+                "https://*.ngrok-free.app",
+                "https://*.ngrok.app",
+                "https://*.ngrok.io",
+                "https://*.loca.lt"
+            ));
         }
         
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

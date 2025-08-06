@@ -10,6 +10,7 @@ Chamado Petro é um sistema completo de gerenciamento de tickets de suporte téc
 
 ### Backend (Spring Boot)
 - **Start development server**: `cd backend && mvn spring-boot:run`
+- **Start with production profile**: `cd backend && mvn spring-boot:run -Dspring.profiles.active=prod`
 - **Build project**: `cd backend && mvn clean package`
 - **Run tests**: `cd backend && mvn test`
 - **Clean build**: `cd backend && mvn clean`
@@ -20,6 +21,10 @@ Chamado Petro é um sistema completo de gerenciamento de tickets de suporte téc
 - **Start production server**: `cd frontend && npm start`
 - **Lint code**: `cd frontend && npm run lint`
 - **Install dependencies**: `cd frontend && npm install` (ou `pnpm install`)
+
+### Full Stack Development
+- **Start both services**: Use separate terminals to run backend and frontend simultaneously
+- **Backend logs**: Check console output for SQL queries and debug information in development mode
 
 ### Database Setup
 - PostgreSQL database: `petrochamado`
@@ -74,9 +79,10 @@ Chamado Petro é um sistema completo de gerenciamento de tickets de suporte téc
 - `ProtectedRoute` component redirects unauthenticated users
 
 **API Integration:**
-- Base URL: `http://localhost:8081`
+- Base URL: `http://localhost:8081` (development) / `NEXT_PUBLIC_API_URL` (production)
 - All API calls through `useApi` hook with automatic token injection
 - Error handling with automatic logout on authentication failures
+- Environment-aware URL configuration via `process.env.NEXT_PUBLIC_API_URL`
 
 ## Key Development Patterns
 
@@ -133,8 +139,54 @@ Chamado Petro é um sistema completo de gerenciamento de tickets de suporte téc
 - Backend: Port 8081, PostgreSQL on localhost:5432
 - Frontend: Port 3000, proxying API calls to localhost:8081
 - Database: Auto-created with sample data via DataInitializer
+- Full SQL logging enabled for debugging
+
+### Production Setup (Render.com)
+- Backend: Dynamic port via `${PORT:8080}`, managed PostgreSQL database
+- Frontend: Standalone Next.js build with environment-specific API URL
+- Database: Auto-configured via `DATABASE_URL` environment variable
+- JWT secrets and other sensitive data via environment variables
+- Optimized logging (INFO level, SQL logging disabled)
+
+### Environment Variables
+**Required for Production:**
+- `DATABASE_URL`: PostgreSQL connection string (auto-provided by Render)
+- `JWT_SECRET`: Secret key for JWT token signing
+- `JWT_EXPIRATION`: Token expiration time in milliseconds (default: 86400000)
+- `FRONTEND_URL`: Frontend URL for CORS configuration
+- `NEXT_PUBLIC_API_URL`: Backend API URL accessible from browser
+
+**Optional:**
+- `SPRING_PROFILES_ACTIVE`: Set to `prod` for production configuration
 
 ### Key Configuration Files
-- `backend/src/main/resources/application.properties`: Database, JWT, logging
+- `backend/src/main/resources/application.properties`: Database, JWT, logging (development)
+- `backend/src/main/resources/application-prod.properties`: Production-specific configurations
 - `frontend/package.json`: Dependencies and scripts
 - `backend/pom.xml`: Maven dependencies and build configuration
+- `frontend/next.config.mjs`: Next.js production configuration with standalone output
+- `render.yaml`: Render.com deployment configuration
+- `.env.example`: Template for environment variables
+- `backend/src/main/java/com/lovablepetro/chamadopetro/config/DatabaseConfig.java`: Dynamic database URL parsing for production
+
+## Important Development Notes
+
+### Security Configuration
+- **Current State**: All endpoints are public (`.anyRequest().permitAll()` in SecurityConfig.java)
+- **JWT Infrastructure**: Fully implemented but not enforced - ready for activation
+- **CORS**: Dynamically configured for development (localhost:3000) and production (via FRONTEND_URL)
+
+### Database Management
+- **Development**: Auto-DDL with sample data initialization via `DataInitializer`
+- **Production**: Manual schema management recommended for production environments
+- **Logging**: Full SQL query logging in development, optimized for production
+
+### API Architecture
+- **RESTful Design**: All endpoints follow `/api/*` pattern
+- **DTO Pattern**: Consistent use of DTOs for request/response mapping
+- **Error Handling**: Centralized error responses with proper HTTP status codes
+
+### Frontend State Management
+- **Authentication**: Context-based with localStorage persistence
+- **API Calls**: Centralized through `useApi` hook with automatic token injection
+- **Route Protection**: `ProtectedRoute` component and `ClientLayout` for authenticated routes

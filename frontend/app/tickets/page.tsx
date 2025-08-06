@@ -44,7 +44,7 @@ export default function TicketsPage() {
   }, [])
 
   // Função para excluir ticket
-  const handleDeleteTicket = async (ticketId: string) => {
+  const handleDeleteTicket = async (ticketId: number) => {
     if (window.confirm('Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita.')) {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
@@ -56,7 +56,7 @@ export default function TicketsPage() {
           setTickets(prevTickets => prevTickets.filter(ticket => ticket.id !== ticketId))
           toast({
             title: "Chamado excluído",
-            description: `O chamado ${ticketId} foi excluído com sucesso.`,
+            description: `O chamado foi excluído com sucesso.`,
           })
         } else {
           toast({
@@ -80,12 +80,12 @@ export default function TicketsPage() {
   const filteredTickets = tickets.filter((ticket) => {
     const matchesSearch =
       ticket.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.abertopor.toLowerCase().includes(searchTerm.toLowerCase())
+      ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.abertoPor.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
     const matchesPriority = priorityFilter === "all" || ticket.prioridade === priorityFilter
-    const matchesTechnician = technicianFilter === "all" || ticket.atribuidoa === technicianFilter
+    const matchesTechnician = technicianFilter === "all" || ticket.atribuidoA === technicianFilter
 
     return matchesSearch && matchesStatus && matchesPriority && matchesTechnician
   })
@@ -202,11 +202,11 @@ export default function TicketsPage() {
                 <TableBody>
                   {paginatedTickets.map((ticket) => (
                     <TableRow key={ticket.id}>
-                      <TableCell className="font-medium">{ticket.id}</TableCell>
+                      <TableCell className="font-medium">{ticket.ticketId}</TableCell>
                       <TableCell>
                         <div className="max-w-xs">
                           <p className="font-medium truncate">{ticket.titulo}</p>
-                          <p className="text-sm text-muted-foreground truncate">Por: {ticket.abertopor}</p>
+                          <p className="text-sm text-muted-foreground truncate">Por: {ticket.abertoPor}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -219,8 +219,8 @@ export default function TicketsPage() {
                           {ticket.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm">{ticket.atribuidoa}</TableCell>
-                      <TableCell className="text-sm">{new Date(ticket.abertoem).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell className="text-sm">{ticket.atribuidoA}</TableCell>
+                      <TableCell className="text-sm">{new Date(ticket.abertoEm).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" asChild>

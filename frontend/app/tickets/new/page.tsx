@@ -22,13 +22,12 @@ export default function NewTicketPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const [formData, setFormData] = useState({
-    ticketId: "",
     titulo: "",
     descricao: "",
     prioridade: "",
-    abertopor: "",
+    abertoPor: "",
     emailAbertoPor: "",
-    atribuidoa: "",
+    atribuidoA: "",
     status: "Aguardando usuário",
   })
 
@@ -38,23 +37,53 @@ export default function NewTicketPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simular salvamento
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+      
+      const ticketData = {
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        prioridade: formData.prioridade,
+        abertoPor: formData.abertoPor,
+        emailAbertoPor: formData.emailAbertoPor,
+        atribuidoA: formData.atribuidoA,
+        status: formData.status
+      }
 
-    const newTicket = {
-      ...formData,
-      id: formData.ticketId,
-      abertoem: new Date().toISOString(),
-      atualizado: new Date().toISOString(),
+      const response = await fetch(`${baseUrl}/api/tickets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ticketData)
+      })
+
+      if (response.ok) {
+        const createdTicket = await response.json()
+        toast({
+          title: "Chamado criado com sucesso!",
+          description: `Ticket ${createdTicket.ticketId} foi criado e atribuído a ${formData.atribuidoA}.`,
+        })
+        router.push("/tickets")
+      } else {
+        const errorData = await response.text()
+        toast({
+          title: "Erro ao criar chamado",
+          description: "Não foi possível criar o chamado. Tente novamente.",
+          variant: "destructive"
+        })
+        console.error('Erro ao criar ticket:', errorData)
+      }
+    } catch (error) {
+      console.error('Erro ao criar ticket:', error)
+      toast({
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao servidor. Verifique sua conexão.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    toast({
-      title: "Chamado criado com sucesso!",
-      description: `Ticket ${newTicket.id} foi criado e atribuído a ${formData.atribuidoa}.`,
-    })
-
-    setIsLoading(false)
-    router.push("/tickets")
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -87,30 +116,18 @@ export default function NewTicketPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="ticket-id">Número do Ticket *</Label>
-                    <Input 
-                      id="ticket-id" 
-                      placeholder="Ex: INC32210310"
-                      value={formData.ticketId}
-                      onChange={(e) => handleInputChange("ticketId", e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Aguardando usuário">Aguardando usuário</SelectItem>
-                        <SelectItem value="Em atendimento">Em atendimento</SelectItem>
-                        <SelectItem value="Problema confirmado">Problema confirmado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Aguardando usuário">Aguardando usuário</SelectItem>
+                      <SelectItem value="Em atendimento">Em atendimento</SelectItem>
+                      <SelectItem value="Problema confirmado">Problema confirmado</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -175,8 +192,8 @@ export default function NewTicketPage() {
                   <div className="space-y-2">
                     <Label htmlFor="atribuidoa">Atribuído a *</Label>
                     <Select
-                      value={formData.atribuidoa}
-                      onValueChange={(value) => handleInputChange("atribuidoa", value)}
+                      value={formData.atribuidoA}
+                      onValueChange={(value) => handleInputChange("atribuidoA", value)}
                       required
                     >
                       <SelectTrigger>
@@ -199,8 +216,8 @@ export default function NewTicketPage() {
                     <Input
                       id="abertopor"
                       placeholder="Nome do solicitante"
-                      value={formData.abertopor}
-                      onChange={(e) => handleInputChange("abertopor", e.target.value)}
+                      value={formData.abertoPor}
+                      onChange={(e) => handleInputChange("abertoPor", e.target.value)}
                       required
                     />
                   </div>

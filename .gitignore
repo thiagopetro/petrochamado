@@ -180,3 +180,18 @@ yarn-error.log*
 /frontend/.env.development.local
 /frontend/.env.test.local
 /frontend/.env.production.local
+
+# Production environment files (keep .example files)
+.env.production
+.env.prod
+
+# Deployment files
+.vercel
+
+# Build artifacts
+build/
+dist/
+
+# Backup files
+*.backup
+*.bak

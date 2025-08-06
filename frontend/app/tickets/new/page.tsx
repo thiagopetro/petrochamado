@@ -22,6 +22,7 @@ export default function NewTicketPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const [formData, setFormData] = useState({
+    ticketId: "",
     titulo: "",
     descricao: "",
     prioridade: "",
@@ -40,7 +41,20 @@ export default function NewTicketPage() {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
       
+      // Verificar se o ticketId já existe
+      const checkResponse = await fetch(`${baseUrl}/api/tickets/ticket/${formData.ticketId}`)
+      if (checkResponse.ok) {
+        toast({
+          title: "Código já existe",
+          description: `O código ${formData.ticketId} já está sendo usado por outro chamado.`,
+          variant: "destructive"
+        })
+        setIsLoading(false)
+        return
+      }
+      
       const ticketData = {
+        ticketId: formData.ticketId,
         titulo: formData.titulo,
         descricao: formData.descricao,
         prioridade: formData.prioridade,
@@ -67,9 +81,15 @@ export default function NewTicketPage() {
         router.push("/tickets")
       } else {
         const errorData = await response.text()
+        let errorMessage = "Não foi possível criar o chamado. Tente novamente."
+        
+        if (response.status === 400 && errorData.includes("duplicate key")) {
+          errorMessage = `O código ${formData.ticketId} já está sendo usado por outro chamado.`
+        }
+        
         toast({
           title: "Erro ao criar chamado",
-          description: "Não foi possível criar o chamado. Tente novamente.",
+          description: errorMessage,
           variant: "destructive"
         })
         console.error('Erro ao criar ticket:', errorData)
@@ -116,18 +136,33 @@ export default function NewTicketPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Aguardando usuário">Aguardando usuário</SelectItem>
-                      <SelectItem value="Em atendimento">Em atendimento</SelectItem>
-                      <SelectItem value="Problema confirmado">Problema confirmado</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Aguardando usuário">Aguardando usuário</SelectItem>
+                        <SelectItem value="Em atendimento">Em atendimento</SelectItem>
+                        <SelectItem value="Problema confirmado">Problema confirmado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ticketId">Código do Chamado *</Label>
+                    <Input
+                      id="ticketId"
+                      placeholder="Ex: INC3221310"
+                      value={formData.ticketId}
+                      onChange={(e) => handleInputChange("ticketId", e.target.value)}
+                      pattern="^INC[0-9]{7}$"
+                      title="Formato: INC seguido de 7 dígitos (ex: INC3221310)"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

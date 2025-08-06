@@ -30,9 +30,9 @@ export default function EditTicketPage() {
     titulo: "",
     descricao: "",
     prioridade: "",
-    abertopor: "",
+    abertoPor: "",
     emailAbertoPor: "",
-    atribuidoa: "",
+    atribuidoA: "",
     status: "Aguardando usuário",
   })
 
@@ -48,9 +48,9 @@ export default function EditTicketPage() {
             titulo: data.titulo || "",
             descricao: data.descricao || "",
             prioridade: data.prioridade || "",
-            abertopor: data.abertopor || "",
+            abertoPor: data.abertoPor || "",
             emailAbertoPor: data.emailAbertoPor || "",
-            atribuidoa: data.atribuidoa || "",
+            atribuidoA: data.atribuidoA || "",
             status: data.status || "Aguardando usuário",
           })
         }
@@ -235,10 +235,10 @@ export default function EditTicketPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="atribuidoa">Atribuído a *</Label>
+                    <Label htmlFor="atribuidoA">Atribuído a *</Label>
                     <Select
-                      value={formData.atribuidoa}
-                      onValueChange={(value) => handleInputChange("atribuidoa", value)}
+                      value={formData.atribuidoA}
+                      onValueChange={(value) => handleInputChange("atribuidoA", value)}
                       required
                     >
                       <SelectTrigger>
@@ -257,11 +257,11 @@ export default function EditTicketPage() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="abertopor">Aberto por *</Label>
+                    <Label htmlFor="abertoPor">Aberto por *</Label>
                     <Input
-                      id="abertopor"
-                      value={formData.abertopor}
-                      onChange={(e) => handleInputChange("abertopor", e.target.value)}
+                      id="abertoPor"
+                      value={formData.abertoPor}
+                      onChange={(e) => handleInputChange("abertoPor", e.target.value)}
                       required
                     />
                   </div>

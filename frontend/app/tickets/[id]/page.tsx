@@ -83,15 +83,15 @@ export default function TicketDetailsPage() {
   // Simular histórico de alterações
   const history = [
     {
-      date: ticket.abertoem,
+      date: ticket.abertoEm,
       action: "Chamado criado",
-      user: ticket.abertopor,
+      user: ticket.abertoPor,
       details: `Chamado criado com prioridade ${ticket.prioridade}`,
     },
     {
       date: ticket.atualizado,
       action: "Status alterado",
-      user: ticket.atribuidoa,
+      user: ticket.atribuidoA,
       details: `Status alterado para "${ticket.status}"`,
     },
   ]
@@ -137,7 +137,7 @@ export default function TicketDetailsPage() {
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
                   <p>Ticket #{ticket.id}</p>
-                  <p>Criado em {new Date(ticket.abertoem).toLocaleDateString("pt-BR")}</p>
+                  <p>Criado em {new Date(ticket.abertoEm).toLocaleDateString("pt-BR")}</p>
                 </div>
               </div>
             </CardHeader>
@@ -158,7 +158,7 @@ export default function TicketDetailsPage() {
                     <User className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Solicitante</p>
-                      <p className="text-sm text-muted-foreground">{ticket.abertopor}</p>
+                      <p className="text-sm text-muted-foreground">{ticket.abertoPor}</p>
                     </div>
                   </div>
 
@@ -166,7 +166,7 @@ export default function TicketDetailsPage() {
                     <User className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Responsável</p>
-                      <p className="text-sm text-muted-foreground">{ticket.atribuidoa}</p>
+                      <p className="text-sm text-muted-foreground">{ticket.atribuidoA}</p>
                     </div>
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export default function TicketDetailsPage() {
                     <div>
                       <p className="text-sm font-medium">Data de Abertura</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(ticket.abertoem).toLocaleString("pt-BR")}
+                        {new Date(ticket.abertoEm).toLocaleString("pt-BR")}
                       </p>
                     </div>
                   </div>

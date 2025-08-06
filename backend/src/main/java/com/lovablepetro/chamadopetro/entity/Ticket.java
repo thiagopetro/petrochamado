@@ -168,6 +168,11 @@ public class Ticket {
     }
     
     private String generateTicketId() {
-        return "INC" + System.currentTimeMillis() % 1000000;
+        // Gera um número sequencial de 7 dígitos baseado no timestamp
+        long timestamp = System.currentTimeMillis();
+        // Usa os últimos 7 dígitos do timestamp para criar um número como 3221310
+        long ticketNumber = timestamp % 10000000L;
+        // Garante que sempre tenha 7 dígitos, preenchendo com zeros à esquerda se necessário
+        return String.format("INC%07d", ticketNumber);
     }
 }

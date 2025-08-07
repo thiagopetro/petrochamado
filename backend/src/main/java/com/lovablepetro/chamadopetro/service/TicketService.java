@@ -253,18 +253,22 @@ public class TicketService {
         String[] fields = parseCSVLine(line);
         
         if (fields.length < 6) {
-            throw new Exception("Linha deve conter pelo menos 6 campos: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a), Atualizado, Descrição resumida");
+            throw new Exception("Linha deve conter pelo menos 6 campos: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a)/Atribuído(a) a, Atualizado, Descrição resumida");
         }
         
         TicketDTO dto = new TicketDTO();
         
         try {
-            // Novo formato: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a), Atualizado, Descrição resumida
+            // Formato aceito: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a)/Atribuído(a) a, Atualizado, Descrição resumida
             dto.setPrioridade(normalizePriority(fields[0].trim()));
             dto.setTicketId(fields[1].trim());
             dto.setAbertoPor(fields[2].trim());
             // fields[3] é a data de abertura - será definida automaticamente
-            dto.setAtribuidoA(fields.length > 4 && !fields[4].trim().isEmpty() ? fields[4].trim() : "Não atribuído");
+            
+            // Campo Atribuído - aceita tanto "Atribuído(a)" quanto "Atribuído(a) a"
+            String atribuidoValue = fields.length > 4 ? fields[4].trim() : "";
+            dto.setAtribuidoA(!atribuidoValue.isEmpty() ? atribuidoValue : "Não atribuído");
+            
             // fields[5] é a data de atualização - será definida automaticamente
             dto.setDescricao(fields.length > 6 ? fields[6].trim() : "Descrição não informada");
             

@@ -3,7 +3,6 @@ package com.lovablepetro.chamadopetro.config;
 
 import com.lovablepetro.chamadopetro.entity.Role;
 import com.lovablepetro.chamadopetro.entity.User;
-import com.lovablepetro.chamadopetro.repository.TicketRepository;
 import com.lovablepetro.chamadopetro.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
-    
-    @Autowired
-    private TicketRepository ticketRepository;
     
     @Autowired
     private UserRepository userRepository;

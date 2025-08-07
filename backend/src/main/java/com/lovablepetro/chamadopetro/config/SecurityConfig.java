@@ -1,7 +1,6 @@
 package com.lovablepetro.chamadopetro.config;
 
 import com.lovablepetro.chamadopetro.service.AuthService;
-import com.lovablepetro.chamadopetro.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
@@ -24,9 +23,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    
-    @Autowired
-    private JwtService jwtService;
     
     @Autowired
     private AuthService authService;
@@ -78,9 +74,8 @@ public class SecurityConfig {
     
     @Bean
     public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder);
         authProvider.setUserDetailsService(authService);
-        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
     

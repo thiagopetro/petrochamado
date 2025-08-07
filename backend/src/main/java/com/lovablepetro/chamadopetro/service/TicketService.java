@@ -2,18 +2,24 @@ package com.lovablepetro.chamadopetro.service;
 
 import com.lovablepetro.chamadopetro.dto.DashboardMetricsDTO;
 import com.lovablepetro.chamadopetro.dto.TicketDTO;
+import com.lovablepetro.chamadopetro.dto.ImportResultDTO;
 import com.lovablepetro.chamadopetro.entity.Prioridade;
 import com.lovablepetro.chamadopetro.entity.Status;
 import com.lovablepetro.chamadopetro.entity.Ticket;
 import com.lovablepetro.chamadopetro.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 @Service
 public class TicketService {
@@ -186,5 +192,186 @@ public class TicketService {
         colors.put("Moderada", "#eab308");
         colors.put("Baixa", "#22c55e");
         return colors;
+    }
+    
+    public ImportResultDTO importTicketsFromFile(MultipartFile file) {
+        ImportResultDTO result = new ImportResultDTO();
+        
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            
+            String line;
+            int lineNumber = 0;
+            boolean isFirstLine = true;
+            
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                
+                // Pular a primeira linha se for cabeçalho
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    // Verificar se a primeira linha parece ser um cabeçalho
+                    if (line.toLowerCase().contains("ticketid") || 
+                        line.toLowerCase().contains("titulo") ||
+                        line.toLowerCase().contains("código")) {
+                        continue;
+                    }
+                }
+                
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                
+                try {
+                    TicketDTO ticketDTO = parseLineToTicketDTO(line, lineNumber);
+                    
+                    // Verificar se já existe um ticket com o mesmo ticketId
+                    if (ticketRepository.findByTicketId(ticketDTO.getTicketId()).isPresent()) {
+                        result.addDuplicate(ticketDTO.getTicketId());
+                        continue;
+                    }
+                    
+                    // Criar o ticket
+                    Ticket ticket = convertToEntity(ticketDTO);
+                    ticketRepository.save(ticket);
+                    result.incrementSuccess();
+                    
+                } catch (Exception e) {
+                    result.addError("Linha " + lineNumber + ": " + e.getMessage());
+                }
+            }
+            
+        } catch (Exception e) {
+            result.addError("Erro ao processar arquivo: " + e.getMessage());
+        }
+        
+        return result;
+    }
+    
+    private TicketDTO parseLineToTicketDTO(String line, int lineNumber) throws Exception {
+        // Dividir a linha por vírgulas, considerando aspas
+        String[] fields = parseCSVLine(line);
+        
+        if (fields.length < 6) {
+            throw new Exception("Linha deve conter pelo menos 6 campos: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a), Atualizado, Descrição resumida");
+        }
+        
+        TicketDTO dto = new TicketDTO();
+        
+        try {
+            // Novo formato: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a), Atualizado, Descrição resumida
+            dto.setPrioridade(normalizePriority(fields[0].trim()));
+            dto.setTicketId(fields[1].trim());
+            dto.setAbertoPor(fields[2].trim());
+            // fields[3] é a data de abertura - será definida automaticamente
+            dto.setAtribuidoA(fields.length > 4 && !fields[4].trim().isEmpty() ? fields[4].trim() : "Não atribuído");
+            // fields[5] é a data de atualização - será definida automaticamente
+            dto.setDescricao(fields.length > 6 ? fields[6].trim() : "Descrição não informada");
+            
+            // Definir título baseado na descrição (primeiras palavras)
+            String descricao = dto.getDescricao();
+            String titulo = descricao.length() > 50 ? descricao.substring(0, 50) + "..." : descricao;
+            dto.setTitulo(titulo);
+            
+            // Status padrão para novos chamados
+            dto.setStatus("Aberto");
+            
+            // Validações
+            if (dto.getTicketId().isEmpty()) {
+                throw new Exception("Número do chamado não pode estar vazio");
+            }
+            if (dto.getDescricao().isEmpty() || dto.getDescricao().equals("Descrição não informada")) {
+                throw new Exception("Descrição resumida não pode estar vazia");
+            }
+            if (dto.getAbertoPor().isEmpty()) {
+                throw new Exception("Campo 'Aberto(a) por' não pode estar vazio");
+            }
+            
+        } catch (Exception e) {
+            throw new Exception("Erro ao processar campos: " + e.getMessage());
+        }
+        
+        return dto;
+    }
+    
+    private String[] parseCSVLine(String line) {
+        List<String> fields = new ArrayList<>();
+        boolean inQuotes = false;
+        StringBuilder currentField = new StringBuilder();
+        
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                fields.add(currentField.toString());
+                currentField = new StringBuilder();
+            } else {
+                currentField.append(c);
+            }
+        }
+        
+        fields.add(currentField.toString());
+        return fields.toArray(new String[0]);
+    }
+    
+    private String normalizePriority(String priority) {
+        String normalized = priority.toLowerCase().trim();
+        switch (normalized) {
+            case "crítica":
+            case "critica":
+            case "critical":
+            case "1":
+                return "Crítica";
+            case "alta":
+            case "high":
+            case "2":
+                return "Alta";
+            case "média":
+            case "media":
+            case "moderada":
+            case "medium":
+            case "3":
+                return "Moderada";
+            case "baixa":
+            case "low":
+            case "4":
+                return "Baixa";
+            default:
+                return "Moderada"; // Default
+        }
+    }
+    
+    private String normalizeStatus(String status) {
+        String normalized = status.toLowerCase().trim();
+        switch (normalized) {
+            case "aberto":
+            case "open":
+            case "novo":
+            case "new":
+                return "Aberto";
+            case "em atendimento":
+            case "em_atendimento":
+            case "in progress":
+            case "progress":
+                return "Em atendimento";
+            case "aguardando usuário":
+            case "aguardando_usuario":
+            case "waiting":
+            case "pending":
+                return "Aguardando usuário";
+            case "problema confirmado":
+            case "problema_confirmado":
+            case "confirmed":
+                return "Problema confirmado";
+            case "resolvido":
+            case "resolved":
+            case "closed":
+            case "fechado":
+                return "Resolvido";
+            default:
+                return "Aberto"; // Default
+        }
     }
 }

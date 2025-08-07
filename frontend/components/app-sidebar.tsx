@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Plus, Ticket, Users, LogOut, User } from "lucide-react"
+import { Home, Plus, Ticket, Users, LogOut, User, FileText } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
@@ -34,6 +34,11 @@ const menuItems = [
     title: "Usuários",
     url: "/users",
     icon: Users,
+  },
+  {
+    title: "Relatórios",
+    url: "/reports",
+    icon: FileText,
   },
 ]
 

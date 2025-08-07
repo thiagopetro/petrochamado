@@ -2,6 +2,7 @@ package com.lovablepetro.chamadopetro.controller;
 
 import com.lovablepetro.chamadopetro.dto.DashboardMetricsDTO;
 import com.lovablepetro.chamadopetro.dto.TicketDTO;
+import com.lovablepetro.chamadopetro.dto.ImportResultDTO;
 import com.lovablepetro.chamadopetro.service.TicketService;
 import com.lovablepetro.chamadopetro.service.AuthService;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -116,5 +118,31 @@ public class TicketController {
             "Resolvido"
         );
         return ResponseEntity.ok(statuses);
+    }
+    
+    @PostMapping("/import")
+    public ResponseEntity<ImportResultDTO> importTickets(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                ImportResultDTO result = new ImportResultDTO();
+                result.addError("Arquivo não pode estar vazio");
+                return ResponseEntity.badRequest().body(result);
+            }
+            
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || (!fileName.endsWith(".csv") && !fileName.endsWith(".xlsx") && !fileName.endsWith(".txt"))) {
+                ImportResultDTO result = new ImportResultDTO();
+                result.addError("Formato de arquivo não suportado. Use CSV, XLSX ou TXT.");
+                return ResponseEntity.badRequest().body(result);
+            }
+            
+            ImportResultDTO result = ticketService.importTicketsFromFile(file);
+            return ResponseEntity.ok(result);
+            
+        } catch (Exception e) {
+            ImportResultDTO result = new ImportResultDTO();
+            result.addError("Erro interno do servidor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
     }
 }

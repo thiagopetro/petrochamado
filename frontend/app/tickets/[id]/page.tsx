@@ -136,7 +136,7 @@ export default function TicketDetailsPage() {
                   </div>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>Ticket #{ticket.id}</p>
+                  <p>{ticket.ticketId}</p>
                   <p>Criado em {new Date(ticket.abertoEm).toLocaleDateString("pt-BR")}</p>
                 </div>
               </div>

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { PageHeader } from "@/components/page-header"
 import { priorityColors, statusColors, technicians, type Ticket } from "@/lib/mock-data"
-import { Search, Plus, Filter, Eye, Edit, Trash2 } from "lucide-react"
+import { Search, Plus, Filter, Eye, Edit, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 
 export default function TicketsPage() {
@@ -76,19 +76,21 @@ export default function TicketsPage() {
     }
   }
 
-  // Filtrar tickets
-  const filteredTickets = tickets.filter((ticket) => {
-    const matchesSearch =
-      ticket.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.abertoPor.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar tickets (excluindo os resolvidos)
+  const filteredTickets = tickets
+    .filter((ticket) => ticket.status !== "Resolvido") // Excluir chamados resolvidos
+    .filter((ticket) => {
+      const matchesSearch =
+        ticket.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.abertoPor.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
-    const matchesPriority = priorityFilter === "all" || ticket.prioridade === priorityFilter
-    const matchesTechnician = technicianFilter === "all" || ticket.atribuidoA === technicianFilter
+      const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
+      const matchesPriority = priorityFilter === "all" || ticket.prioridade === priorityFilter
+      const matchesTechnician = technicianFilter === "all" || ticket.atribuidoA === technicianFilter
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesTechnician
-  })
+      return matchesSearch && matchesStatus && matchesPriority && matchesTechnician
+    })
 
   // Paginação
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage)
@@ -106,12 +108,20 @@ export default function TicketsPage() {
   return (
     <div className="flex flex-col h-screen">
       <PageHeader title="Gerenciar Chamados" breadcrumbs={[{ label: "Dashboard", href: "/" }, { label: "Chamados" }]}>
-        <Button asChild>
-          <Link href="/tickets/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Chamado
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/tickets/import">
+              <Upload className="h-4 w-4 mr-2" />
+              Importar
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/tickets/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Chamado
+            </Link>
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="flex-1 overflow-auto p-6">

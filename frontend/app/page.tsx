@@ -51,8 +51,9 @@ export default function Dashboard() {
   const resolvedTickets = tickets.filter((t) => t.status === "Resolvido").length
   const pendingTickets = tickets.filter((t) => t.status === "Aguardando usuário").length
 
-  // 5 chamados mais recentes
+  // 5 chamados mais recentes (excluindo os resolvidos)
   const recentTickets = tickets
+    .filter((t) => t.status !== "Resolvido")
     .sort((a, b) => new Date(b.abertoEm).getTime() - new Date(a.abertoEm).getTime())
     .slice(0, 5)
 

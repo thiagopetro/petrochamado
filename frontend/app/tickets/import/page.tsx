@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageHeader } from "@/components/page-header"
-import { Upload, FileText, Download, AlertCircle, CheckCircle } from "lucide-react"
+import { Upload, FileText, Download, AlertCircle, CheckCircle, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 interface ImportResult {
@@ -234,10 +234,26 @@ export default function ImportTicketsPage() {
             {file && (
               <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
                 <FileText className="h-4 w-4" />
-                <span className="text-sm font-medium">{file.name}</span>
+                <span className="text-sm font-medium flex-1">{file.name}</span>
                 <Badge variant="outline">
                   {(file.size / 1024).toFixed(1)} KB
                 </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setFile(null)
+                    setPreview([])
+                    setImportResult(null)
+                    // Limpar o input file
+                    const fileInput = document.getElementById('file') as HTMLInputElement
+                    if (fileInput) fileInput.value = ''
+                  }}
+                  className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                  title="Remover arquivo"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             )}
 

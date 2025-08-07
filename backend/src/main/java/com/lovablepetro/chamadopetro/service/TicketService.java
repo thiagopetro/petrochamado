@@ -299,6 +299,9 @@ public class TicketService {
     }
     
     private String[] parseCSVLine(String line) {
+        // Detectar o separador automaticamente
+        char separator = detectSeparator(line);
+        
         List<String> fields = new ArrayList<>();
         boolean inQuotes = false;
         StringBuilder currentField = new StringBuilder();
@@ -308,7 +311,7 @@ public class TicketService {
             
             if (c == '"') {
                 inQuotes = !inQuotes;
-            } else if (c == ',' && !inQuotes) {
+            } else if (c == separator && !inQuotes) {
                 fields.add(currentField.toString());
                 currentField = new StringBuilder();
             } else {
@@ -318,6 +321,30 @@ public class TicketService {
         
         fields.add(currentField.toString());
         return fields.toArray(new String[0]);
+    }
+    
+    private char detectSeparator(String line) {
+        // Contar vírgulas e ponto e vírgulas fora de aspas
+        int commaCount = 0;
+        int semicolonCount = 0;
+        boolean inQuotes = false;
+        
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (!inQuotes) {
+                if (c == ',') {
+                    commaCount++;
+                } else if (c == ';') {
+                    semicolonCount++;
+                }
+            }
+        }
+        
+        // Retornar o separador mais comum
+        return semicolonCount > commaCount ? ';' : ',';
     }
     
     private String normalizePriority(String priority) {

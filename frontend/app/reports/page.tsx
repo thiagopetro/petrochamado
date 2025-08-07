@@ -22,7 +22,7 @@ export default function ReportsPage() {
   const [technicianFilter, setTechnicianFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const itemsPerPage = 25
 
   useEffect(() => {
     const fetchTickets = async () => {

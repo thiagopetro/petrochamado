@@ -1,0 +1,10 @@
+{
+  "ticketId": "INC0000004",
+  "titulo": "Teste Final",
+  "descricao": "Teste após limpeza dos logs",
+  "prioridade": "3 - Moderada",
+  "abertoPor": "Usuario Teste",
+  "emailAbertoPor": "teste@petro.com",
+  "atribuidoA": "Tecnico",
+  "status": "Em atendimento"
+}

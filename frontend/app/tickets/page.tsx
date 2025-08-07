@@ -22,7 +22,7 @@ export default function TicketsPage() {
   const [priorityFilter, setPriorityFilter] = useState("all")
   const [technicianFilter, setTechnicianFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 8
+  const itemsPerPage = 25
 
   useEffect(() => {
     const fetchTickets = async () => {

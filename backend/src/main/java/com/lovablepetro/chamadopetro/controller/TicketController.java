@@ -58,12 +58,12 @@ public class TicketController {
     }
     
     @PostMapping
-    public ResponseEntity<TicketDTO> createTicket(@Valid @RequestBody TicketDTO ticketDTO) {
+    public ResponseEntity<?> createTicket(@RequestBody TicketDTO ticketDTO) {
         try {
             TicketDTO createdTicket = ticketService.createTicket(ticketDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
         }
     }
     

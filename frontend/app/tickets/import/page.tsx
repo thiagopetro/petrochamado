@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageHeader } from "@/components/page-header"
-import { Upload, FileText, Download, AlertCircle, CheckCircle, X } from "lucide-react"
+import { Upload, FileText, Download, AlertCircle, CheckCircle, X, Table, Plus, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ImportResult {
   success: number
@@ -26,6 +27,8 @@ export default function ImportTicketsPage() {
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [preview, setPreview] = useState<any[]>([])
+  const [tableData, setTableData] = useState<string[][]>([["", "", "", "", "", ""]])
+  const [activeTab, setActiveTab] = useState("file")
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -129,6 +132,103 @@ export default function ImportTicketsPage() {
     }
   }
 
+  const handleTableImport = async () => {
+    // Filtrar linhas vazias
+    const validRows = tableData.filter(row => 
+      row.some(cell => cell.trim() !== "")
+    )
+
+    if (validRows.length === 0) {
+      toast({
+        title: "Dados inválidos",
+        description: "Por favor, preencha pelo menos uma linha com dados.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setImporting(true)
+
+    try {
+      // Converter dados da tabela para formato CSV
+      const csvContent = validRows.map(row => row.join(';')).join('\n')
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const file = new File([blob], 'dados_tabela.csv', { type: 'text/csv' })
+      
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'
+      const response = await fetch(`${baseUrl}/api/tickets/import`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setImportResult(result)
+        
+        if (result.success > 0) {
+          toast({
+            title: "Importação concluída",
+            description: `${result.success} chamados importados com sucesso.`,
+          })
+        }
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Erro na importação')
+      }
+    } catch (error) {
+      console.error('Erro na importação:', error)
+      toast({
+        title: "Erro na importação",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive",
+      })
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  const updateTableCell = (rowIndex: number, colIndex: number, value: string) => {
+    const newData = [...tableData]
+    newData[rowIndex][colIndex] = value
+    setTableData(newData)
+  }
+
+  const addTableRow = () => {
+    setTableData([...tableData, ["", "", "", "", "", ""]])
+  }
+
+  const removeTableRow = (index: number) => {
+    if (tableData.length > 1) {
+      const newData = tableData.filter((_, i) => i !== index)
+      setTableData(newData)
+    }
+  }
+
+  const handlePasteData = (e: React.ClipboardEvent) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text')
+    const rows = pastedData.split('\n').filter(row => row.trim() !== '')
+    
+    const newTableData = rows.map(row => {
+      const cells = row.split(/[;\t]/).slice(0, 6) // Limitar a 6 colunas
+      while (cells.length < 6) {
+        cells.push('') // Preencher colunas faltantes
+      }
+      return cells
+    })
+    
+    if (newTableData.length > 0) {
+      setTableData(newTableData)
+      toast({
+        title: "Dados colados",
+        description: `${newTableData.length} linha(s) foram adicionadas à tabela.`,
+      })
+    }
+  }
+
   const downloadTemplate = () => {
     const csvContent = [
       ["Prioridade", "Número", "Aberto(a) por", "Aberto(a)", "Atribuído(a)", "Atualizado", "Descrição resumida"],
@@ -211,14 +311,27 @@ export default function ImportTicketsPage() {
           </CardContent>
         </Card>
 
-        {/* Upload de Arquivo */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Selecionar Arquivo
-            </CardTitle>
-          </CardHeader>
+        {/* Abas para diferentes métodos de importação */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="file" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload de Arquivo
+            </TabsTrigger>
+            <TabsTrigger value="table" className="flex items-center gap-2">
+              <Table className="h-4 w-4" />
+              Inserir Dados
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="file">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Selecionar Arquivo
+                </CardTitle>
+              </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="file">Arquivo para Importação</Label>
@@ -276,8 +389,130 @@ export default function ImportTicketsPage() {
                 )}
               </Button>
             )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="table">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Table className="h-5 w-5" />
+                  Inserir Dados Manualmente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Dica:</strong> Você pode colar dados diretamente do Excel ou de outra planilha. 
+                    Use Ctrl+V na área da tabela para colar múltiplas linhas de uma vez.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <Label>Dados dos Chamados</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addTableRow}
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Adicionar Linha
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="border rounded-lg overflow-hidden" onPaste={handlePasteData}>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="p-3 text-left text-sm font-medium border-r">Número</th>
+                            <th className="p-3 text-left text-sm font-medium border-r">Prioridade</th>
+                            <th className="p-3 text-left text-sm font-medium border-r">Aberto(a) por</th>
+                            <th className="p-3 text-left text-sm font-medium border-r">Aberto(a)</th>
+                            <th className="p-3 text-left text-sm font-medium border-r">Atribuído(a) a</th>
+                            <th className="p-3 text-left text-sm font-medium border-r">Descrição resumida</th>
+                            <th className="p-3 text-center text-sm font-medium w-16">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tableData.map((row, rowIndex) => (
+                            <tr key={rowIndex} className="border-t">
+                              {row.map((cell, colIndex) => (
+                                <td key={colIndex} className="p-0 border-r">
+                                  <Input
+                                    value={cell}
+                                    onChange={(e) => updateTableCell(rowIndex, colIndex, e.target.value)}
+                                    className="border-0 rounded-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder={[
+                                      "Ex: INC123456",
+                                      "Ex: 3 - Moderada",
+                                      "Ex: João Silva",
+                                      "Ex: 29/07/2025",
+                                      "Ex: Maria Santos",
+                                      "Ex: Erro no sistema"
+                                    ][colIndex]}
+                                  />
+                                </td>
+                              ))}
+                              <td className="p-2 text-center">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeTableRow(rowIndex)}
+                                  disabled={tableData.length === 1}
+                                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                                  title="Remover linha"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleTableImport} 
+                      disabled={importing || tableData.every(row => row.every(cell => cell.trim() === ""))}
+                      className="flex-1"
+                    >
+                      {importing ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Importando...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Importar Dados da Tabela
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setTableData([["", "", "", "", "", ""]])}
+                      disabled={importing}
+                    >
+                      Limpar Tabela
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Preview dos Dados */}
         {preview.length > 0 && (

@@ -1,0 +1,30 @@
+Número;Prioridade;Aberto(a) por;Aberto(a);Atribuído(a) a;Descrição resumida
+INC3221310;3 - Moderada;Enoc Tobias Onofre;29/07/2025 11:42:05;Thiago de Amorim Moraes;Aplicação: Portal SPT - Erro ao emitir PT na aplicação.
+INC3221323;3 - Moderada;Bruno da Fonseca Fernandes;29/07/2025 11:41:20;Thiago de Amorim Moraes;Estou com dificuldades de emitir uma PT de Ordem de Manutenção n° 000052706461.
+INC3194738;3 - Moderada;Roberto Ferreira dos Santos;23/07/2025 10:02:22;Alice da Silva Goncalves;Falha no encerramento de PTs
+INC3175308;3 - Moderada;David William Medeiros Feijao;18/07/2025 08:43:43;Thiago de Amorim Moraes;SPT - Mensagem de erro gerar uma relação das PT
+INC3161992;3 - Moderada;Edson Andriolli Mendes;15/07/2025 11:45:29;Thiago de Amorim Moraes;Sistema está apresentando erro conforme print anexo.
+INC3158735;3 - Moderada;Jocielma Manoel Dias;14/07/2025 17:16:17;Thiago de Amorim Moraes;Usuário Transpetro EDIVAN LOUZADA COSTA   chave TT48   Problema na aplicação: Portal SPT
+INC3140857;4 - Baixa;Pedro Henrique de Araujo Fernandes;10/07/2025 09:45:54;Thiago de Amorim Moraes;Lentidão no portal SPT
+INC3138249;4 - Baixa;Gustavo de Souza Ramos;09/07/2025 15:42:50;Thiago de Amorim Moraes;Falha no SPT. 
+INC3137664;4 - Baixa;Gustavo de Souza Ramos;09/07/2025 13:52:27;Thiago de Amorim Moraes;Falha no portal SPT 
+INC3130236;3 - Moderada;Vitor Hugo Caldas de Souza;07/07/2025 22:07:03;Thiago de Amorim Moraes;Usuário informa problema para gerar relatório em Excel em SPT libra. 
+INC3128107;3 - Moderada;Lilian Nascimento da Mota;07/07/2025 13:15:50;Renan Felipe Affonso de Lima;SPT-A colaboradora não consegue emitir PT.
+INC3023059;3 - Moderada;Greison da Silva;10/06/2025 15:25:04;Thiago de Amorim Moraes;Usuário de chave TDGW reporta problemas no acesso ao Portal SPT.
+INC2939344;3 - Moderada;Emerson dos Santos da Silva;21/05/2025 09:16:23;Alice da Silva Goncalves;Ao tentar encerrar a PT: 20016086, houve um erro.
+INC2932706;4 - Baixa;Andre Luiz Costa de Oliveira;19/05/2025 16:16:29;Thiago de Amorim Moraes;Portal SPT - Não consegue acessar a AR 3025528 pra alterar
+INC2931920;3 - Moderada;Felipe Silva Gomes;19/05/2025 13:55:41;Alice da Silva Goncalves;Portal SPT
+INC2924131;3 - Moderada;Guilherme Rodrigues Nogueira Barreto;16/05/2025 15:04:46;Alice da Silva Goncalves;os dados de PTs pré emitidas no SPT estão iguais as registradas a emissão no SPT no painel BI e isso não parece coerente.
+INC2896715;3 - Moderada;Adilson Antonio Ament;09/05/2025 13:22:14;;Aplicação: Portal SPT - Usuário alega problemas na criação de matrizes de isolamento dentro da aplicação
+INC2892143;2 - Alta;Jose Ioellyton da Silva;08/05/2025 10:57:14;;PORTAL SPT, problema em impressão de matriz no LIBRA
+INC2876031;4 - Baixa;José Gilberto dos Santos;04/05/2025 17:12:00;;Portal SPT: Usuário reporta erro ao salvar as informações dos  sinalizadores código 1216384 TAG: VÁLV CONTROLE ATUAÇÃO -U-2700 Objetivo: RETIRAR E REINSTALAR VÁLVULA DE CONTROLE  Título: BLOQUEIO DA VÁLVULA FASE: FASE 1 na Matriz de Isolamento.
+INC2793362;4 - Baixa;Tatiana dos Santos Vaz;10/04/2025 15:29:01;Thiago de Amorim Moraes;"Erro ""Ocorreu um erro não previsto no sistema..."" no Portal SPT"
+INC2771043;4 - Baixa;David Simon Gomes de Brito;04/04/2025 13:51:55;Alice da Silva Goncalves;Usuário informa não haver permissões liberadas mesmo após confirmação do fiscal
+INC2651010;3 - Moderada;Antonio Arruda Pontes Filho;10/03/2025 14:04:16;;Consulta de ações está mostrando dados incorretos.
+INC2646851;4 - Baixa;Renan Azevedo de Souza;08/03/2025 12:53:11;;Usuário Transpetro EVANDRO VICENTE DE OLIVEIRA FERREIRA - T2FI - Problema na aplicação SPT.
+INC2418023;4 - Baixa;Rafael Felipe Oliveira Santos;02/01/2025 11:35:56;Thiago de Amorim Moraes;Report de BUG no Portal SPT
+INC2200256;3 - Moderada;Jose Ioellyton da Silva;30/10/2024 08:28:25;;Problemas de conflito no SPT
+INC2151294;3 - Moderada;Rafael Felipe Oliveira Santos;22/10/2024 10:59:00;Thiago de Amorim Moraes;SPT: Não consegue realizar ação no LIBRA
+INC1904801;3 - Moderada;Edson Andriolli Mendes;19/08/2024 15:51:36;;Boa tarde. O SPT está apresentando erro na marcação de PBS em algumas PT. Não marca nem pelo SAP e nem pelo SPT. Não gera o campo para assinatura do PBS na LVT do Executante.
+INC1743279;3 - Moderada;Matheus Rodrigues Pinto;04/07/2024 09:15:03;;Erro Sigem.
+INC1699210;3 - Moderada;Edson Andriolli Mendes;21/06/2024 08:54:59;;Em algumas PT's não é possível associar os PB's conforme anexo.

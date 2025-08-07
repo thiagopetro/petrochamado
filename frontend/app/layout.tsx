@@ -11,7 +11,8 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Sistema de Tickets - Suporte Técnico",
   description: "Sistema completo para gerenciamento de chamados de suporte técnico",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  charset: 'utf-8'
 }
 
 export default function RootLayout({
@@ -21,6 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <ClientLayout>

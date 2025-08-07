@@ -1,0 +1,4 @@
+Número;Prioridade;Aberto(a) por;Aberto(a);Atribuído(a) a;Descrição resumida;;
+TEST001;3 - Moderada;João Silva;01/01/2025 10:00:00;Maria Santos;Teste de importação de dados;;
+TEST002;2 - Alta;Pedro Costa;01/01/2025 11:00:00;Ana Lima;Segundo teste de importação;;
+TEST003;1 - Crítica;Carlos Oliveira;01/01/2025 12:00:00;José Ferreira;Terceiro teste de importação;;

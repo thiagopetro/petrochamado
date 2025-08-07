@@ -1,0 +1,4 @@
+Número,Prioridade,Aberto(a) por,Aberto(a),Atribuído(a) a,Descrição resumida
+INC9999999,2 - Alta,João da Silva,2025-01-31,Técnico Responsável,Teste de acentuação: ação configuração integração
+INC8888888,1 - Crítica,Maria José,2025-01-31,Carlos Eduardo Lima,Problemas de codificação: ç ã õ é í ó ú
+INC7777777,3 - Moderada,José António,2025-01-31,Ana Carolina Ferreira,Validação UTF-8: São Paulo Brasília

@@ -10,10 +10,11 @@ import com.lovablepetro.chamadopetro.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 
 @Service
 public class TicketService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
     
     @Autowired
     private TicketRepository ticketRepository;
@@ -44,9 +47,14 @@ public class TicketService {
     }
     
     public TicketDTO createTicket(TicketDTO ticketDTO) {
-        Ticket ticket = convertToEntity(ticketDTO);
-        Ticket savedTicket = ticketRepository.save(ticket);
-        return convertToDTO(savedTicket);
+        try {
+            Ticket ticket = convertToEntity(ticketDTO);
+            Ticket savedTicket = ticketRepository.save(ticket);
+            return convertToDTO(savedTicket);
+        } catch (Exception e) {
+            logger.error("Erro ao criar ticket: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     public Optional<TicketDTO> updateTicket(Long id, TicketDTO ticketDTO) {
@@ -197,53 +205,95 @@ public class TicketService {
     public ImportResultDTO importTicketsFromFile(MultipartFile file) {
         ImportResultDTO result = new ImportResultDTO();
         
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-            
-            String line;
-            int lineNumber = 0;
-            boolean isFirstLine = true;
-            
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
+        System.out.println("=== INICIANDO IMPORTAÇÃO DE TICKETS ===");
+        System.out.println("Nome do arquivo: " + file.getOriginalFilename());
+        System.out.println("Tamanho do arquivo: " + file.getSize() + " bytes");
+        
+        // Tentar diferentes codificações
+        String[] encodings = {"UTF-8", "ISO-8859-1", "Windows-1252", "UTF-16"};
+        
+        for (String encoding : encodings) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(file.getInputStream(), encoding))) {
                 
-                // Pular a primeira linha se for cabeçalho
-                if (isFirstLine) {
-                    isFirstLine = false;
-                    // Verificar se a primeira linha parece ser um cabeçalho
-                    if (line.toLowerCase().contains("ticketid") || 
-                        line.toLowerCase().contains("titulo") ||
-                        line.toLowerCase().contains("código")) {
+                System.out.println("Tentando codificação: " + encoding);
+                
+                String line;
+                int lineNumber = 0;
+                boolean isFirstLine = true;
+                boolean foundValidData = false;
+                
+                while ((line = reader.readLine()) != null) {
+                    lineNumber++;
+                    
+                    System.out.println("Linha " + lineNumber + " (" + encoding + "): " + line);
+                    
+                    // Pular a primeira linha se for cabeçalho
+                    if (isFirstLine) {
+                        isFirstLine = false;
+                        // Verificar se a primeira linha parece ser um cabeçalho
+                        if (line.toLowerCase().contains("número") || 
+                            line.toLowerCase().contains("numero") ||
+                            line.toLowerCase().contains("prioridade") ||
+                            line.toLowerCase().contains("aberto") ||
+                            line.toLowerCase().contains("ticketid") || 
+                            line.toLowerCase().contains("titulo") ||
+                            line.toLowerCase().contains("código") ||
+                            line.toLowerCase().contains("codigo") ||
+                            line.contains("N�mero")) { // Detectar cabeçalho com caracteres corrompidos
+
+                            System.out.println("Detectado cabeçalho, pulando linha 1");
+                            continue;
+                        }
+                    }
+                    
+                    if (line.trim().isEmpty()) {
+                        System.out.println("Linha vazia, pulando");
                         continue;
+                    }
+                    
+                    try {
+                        TicketDTO ticketDTO = parseLineToTicketDTO(line, lineNumber);
+                        System.out.println("TicketDTO criado: ID=" + ticketDTO.getTicketId() + ", Título=" + ticketDTO.getTitulo());
+                        
+                        // Verificar se já existe um ticket com o mesmo ticketId
+                        if (ticketRepository.findByTicketId(ticketDTO.getTicketId()).isPresent()) {
+                            System.out.println("Ticket duplicado encontrado: " + ticketDTO.getTicketId());
+                            result.addDuplicate(ticketDTO.getTicketId());
+                            continue;
+                        }
+                        
+                        // Criar o ticket
+                        Ticket ticket = convertToEntity(ticketDTO);
+                        ticketRepository.save(ticket);
+                        result.incrementSuccess();
+                        foundValidData = true;
+                        System.out.println("Ticket salvo com sucesso: " + ticketDTO.getTicketId());
+                        
+                    } catch (Exception e) {
+                        System.out.println("Erro ao processar linha " + lineNumber + ": " + e.getMessage());
+                        result.addError("Linha " + lineNumber + ": " + e.getMessage());
                     }
                 }
                 
-                if (line.trim().isEmpty()) {
-                    continue;
+                // Se encontrou dados válidos com esta codificação, parar de tentar outras
+                if (foundValidData || result.getSuccess() > 0) {
+                    System.out.println("Codificação " + encoding + " funcionou! Dados processados com sucesso.");
+                    break;
                 }
                 
-                try {
-                    TicketDTO ticketDTO = parseLineToTicketDTO(line, lineNumber);
-                    
-                    // Verificar se já existe um ticket com o mesmo ticketId
-                    if (ticketRepository.findByTicketId(ticketDTO.getTicketId()).isPresent()) {
-                        result.addDuplicate(ticketDTO.getTicketId());
-                        continue;
-                    }
-                    
-                    // Criar o ticket
-                    Ticket ticket = convertToEntity(ticketDTO);
-                    ticketRepository.save(ticket);
-                    result.incrementSuccess();
-                    
-                } catch (Exception e) {
-                    result.addError("Linha " + lineNumber + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Erro com codificação " + encoding + ": " + e.getMessage());
+                if (encoding.equals(encodings[encodings.length - 1])) {
+                    result.addError("Erro ao processar arquivo com todas as codificações testadas: " + e.getMessage());
                 }
             }
-            
-        } catch (Exception e) {
-            result.addError("Erro ao processar arquivo: " + e.getMessage());
         }
+        
+        System.out.println("=== RESULTADO DA IMPORTAÇÃO ===");
+        System.out.println("Sucessos: " + result.getSuccess());
+        System.out.println("Erros: " + result.getErrors().size());
+        System.out.println("Duplicados: " + result.getDuplicates().size());
         
         return result;
     }
@@ -252,39 +302,53 @@ public class TicketService {
         // Dividir a linha por vírgulas, considerando aspas
         String[] fields = parseCSVLine(line);
         
+
         if (fields.length < 6) {
-            throw new Exception("Linha deve conter pelo menos 6 campos: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a)/Atribuído(a) a, Atualizado, Descrição resumida");
+            throw new Exception("Linha " + lineNumber + ": Linha deve conter pelo menos 6 campos: Número, Prioridade, Aberto(a) por, Aberto(a), Atribuído(a) a, Descrição resumida. Encontrados: " + fields.length + " campos.");
+        }
+        
+        System.out.println("Linha " + lineNumber + " tem " + fields.length + " campos:");
+        for (int i = 0; i < fields.length; i++) {
+            System.out.println("  Campo " + i + ": '" + fields[i] + "'");
         }
         
         TicketDTO dto = new TicketDTO();
         
         try {
-            // Formato aceito: Prioridade, Número, Aberto(a) por, Aberto(a), Atribuído(a)/Atribuído(a) a, Atualizado, Descrição resumida
-            dto.setPrioridade(normalizePriority(fields[0].trim()));
-            dto.setTicketId(fields[1].trim());
-            dto.setAbertoPor(fields[2].trim());
-            // fields[3] é a data de abertura - será definida automaticamente
+            // Mapeamento conforme estrutura real do CSV:
+            // Campo 0: Número = ticketId
+            // Campo 1: Prioridade = prioridade 
+            // Campo 2: Aberto(a) por = abertoPor
+            // Campo 3: Aberto(a) = data de abertura - será ignorada
+            // Campo 4: Atribuído(a) a = atribuidoA - opcional
+            // Campo 5: Descrição resumida = descricao
+            // Campos 6 e 7: vazios (ignorados)
             
-            // Campo Atribuído - aceita tanto "Atribuído(a)" quanto "Atribuído(a) a"
-            String atribuidoValue = fields.length > 4 ? fields[4].trim() : "";
+            dto.setTicketId(fields[0].trim());
+            dto.setPrioridade(normalizePriority(fields[1].trim()));
+            dto.setAbertoPor(fields[2].trim());
+            // fields[3] é a data de abertura - será definida automaticamente como data atual
+            
+            // Campo Atribuído - opcional, não obrigatório
+            String atribuidoValue = fields[4].trim();
             dto.setAtribuidoA(!atribuidoValue.isEmpty() ? atribuidoValue : "Não atribuído");
             
-            // fields[5] é a data de atualização - será definida automaticamente
-            dto.setDescricao(fields.length > 6 ? fields[6].trim() : "Descrição não informada");
+            // Descrição resumida
+            dto.setDescricao(fields[5].trim());
             
-            // Definir título baseado na descrição (primeiras palavras)
+            // Título baseado na descrição (opcional, não obrigatório)
             String descricao = dto.getDescricao();
             String titulo = descricao.length() > 50 ? descricao.substring(0, 50) + "..." : descricao;
             dto.setTitulo(titulo);
             
-            // Status padrão para novos chamados
-            dto.setStatus("Aberto");
+            // Status padrão para novos chamados (opcional, não obrigatório)
+            dto.setStatus(normalizeStatus("Aberto"));
             
-            // Validações
+            // Validações apenas para campos obrigatórios
             if (dto.getTicketId().isEmpty()) {
                 throw new Exception("Número do chamado não pode estar vazio");
             }
-            if (dto.getDescricao().isEmpty() || dto.getDescricao().equals("Descrição não informada")) {
+            if (dto.getDescricao().isEmpty()) {
                 throw new Exception("Descrição resumida não pode estar vazia");
             }
             if (dto.getAbertoPor().isEmpty()) {
@@ -354,23 +418,30 @@ public class TicketService {
             case "critica":
             case "critical":
             case "1":
-                return "Crítica";
+            case "1 - crítica":
+            case "1 - critica":
+                return "1 - Crítica";
             case "alta":
             case "high":
             case "2":
-                return "Alta";
+            case "2 - alta":
+                return "2 - Alta";
             case "média":
             case "media":
             case "moderada":
             case "medium":
             case "3":
-                return "Moderada";
+            case "3 - moderada":
+            case "3 - média":
+            case "3 - media":
+                return "3 - Moderada";
             case "baixa":
             case "low":
             case "4":
-                return "Baixa";
+            case "4 - baixa":
+                return "4 - Baixa";
             default:
-                return "Moderada"; // Default
+                return "3 - Moderada"; // Default
         }
     }
     
@@ -381,17 +452,16 @@ public class TicketService {
             case "open":
             case "novo":
             case "new":
-                return "Aberto";
-            case "em atendimento":
-            case "em_atendimento":
-            case "in progress":
-            case "progress":
-                return "Em atendimento";
             case "aguardando usuário":
             case "aguardando_usuario":
             case "waiting":
             case "pending":
                 return "Aguardando usuário";
+            case "em atendimento":
+            case "em_atendimento":
+            case "in progress":
+            case "progress":
+                return "Em atendimento";
             case "problema confirmado":
             case "problema_confirmado":
             case "confirmed":
